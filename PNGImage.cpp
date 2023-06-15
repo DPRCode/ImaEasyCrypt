@@ -333,7 +333,7 @@ std::vector<unsigned char> PNGImage::deflatePixelData(std::vector<unsigned char>
 
     stream.avail_in = decompressedData.size();
     stream.next_in = (Bytef *) decompressedData.data();
-
+    //TODO: data could only grow to 1024 bytes --> error in compression
     while (stream.avail_in > 0){
         unsigned char buffer[1024];
         stream.next_out = buffer;
@@ -427,11 +427,96 @@ void PNGImage::setPixelData(std::vector<std::vector<Pixel>> pixelData) {
         for (Chunk chunk:chunks){
             if (chunk.type=="IDAT"){
                 chunk.data = compressedPixelData;
+                chunk.length = compressedPixelData.size();
                 chunk.calculateCRC();
             }
             newChunks.push_back(chunk);
         }
         this->chunks = newChunks;
     }
+}
+
+void PNGImage::createRandomImage(int width, int height, std::string path) {
+    std::vector<std::vector<Pixel>> pixelData;
+    for (int i = 0; i < height; ++i) {
+        std::vector<Pixel> line;
+        for (int j = 0; j < width; ++j) {
+            Pixel pixel;
+            pixel.red = rand() % 256;
+            pixel.green = rand() % 256;
+            pixel.blue = rand() % 256;
+            line.push_back(pixel);
+        }
+        pixelData.push_back(line);
+    }
+    PNGImage image;
+    image.chunks[0] = image.createIHDRChunk(width,height,8,2,0,0,0);
+    image.extractImageInformation();
+    image.setPixelData(pixelData);
+    image.saveImage(path);
+}
+
+PNGImage::PNGImage() {
+    this->chunks = std::vector<Chunk>();
+    chunks.push_back(createIHDRChunk(0,0,0,0,0,0,0));
+    chunks.push_back(createIDATChunk());
+    chunks.push_back(createIENDChunk());
+    this->extractImageInformation();
+}
+
+Chunk PNGImage::createIHDRChunk(int width, int height, int bitDepth, int colorType, int compressionMethod, int filterMethod, int interlaceMethod) {
+    Chunk chunk;
+    chunk.type= "IHDR";
+    std::vector<unsigned char> data(13);
+    // Width
+    data[0] = (width >> 24) & 0xFF;
+    data[1] = (width >> 16) & 0xFF;
+    data[2] = (width >> 8) & 0xFF;
+    data[3] = width & 0xFF;
+    // Height
+    data[4] = (height >> 24) & 0xFF;
+    data[5] = (height >> 16) & 0xFF;
+    data[6] = (height >> 8) & 0xFF;
+    data[7] = height & 0xFF;
+    // Bit depth
+    data[8] = static_cast<unsigned char>(bitDepth);
+    // Color type
+    data[9] = static_cast<unsigned char>(colorType);
+    // Compression method
+    data[10] = static_cast<unsigned char>(compressionMethod);
+    // Filter method
+    data[11] = static_cast<unsigned char>(filterMethod);
+    // Interlace method
+    data[12] = static_cast<unsigned char>(interlaceMethod);
+    chunk.data = data;
+    chunk.length = 13;
+    chunk.calculateCRC();
+    return chunk;
+}
+
+Chunk PNGImage::createIDATChunk() {
+    Chunk chunk;
+    chunk.type = "IDAT";
+    chunk.data = std::vector<unsigned char>();
+    chunk.length = 0;
+    chunk.calculateCRC();
+    return chunk;
+}
+
+Chunk PNGImage::createIENDChunk() {
+    Chunk chunk;
+    chunk.type = "IEND";
+    chunk.data = std::vector<unsigned char>(0);
+    chunk.length = 0;
+    chunk.crc= 2923585666;
+    return chunk;
+}
+
+void PNGImage::demo2() {
+    PNGImage image;
+    image.displayImageInformation();
+    PNGImage::createRandomImage(4,4,"/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/test.png");
+    PNGImage image2("/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/test.png");
+    image2.displayImageInformation();
 }
 

@@ -2,6 +2,6 @@
 #include <iostream>
 
 int main() {
-    PNGImage::demo();
+    PNGImage::demo2();
     return 0;
 }

@@ -14,3 +14,5 @@ void Chunk::calculateCRC(){
     crc = crc32(0L, dataArray, 4);
     crc = crc32(crc, data.data(), data.size());
 }
+
+

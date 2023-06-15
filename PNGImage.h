@@ -32,16 +32,21 @@ private:
     std::vector<std::vector<Pixel>> reverseSubFilter(std::vector<std::vector<Pixel>> unfilterdPixelData);
     std::vector<std::vector<Pixel>> applySubFilter(std::vector<std::vector<Pixel>> unfilterdPixelData);
     std::vector<unsigned char> combineCompressedData();
+    Chunk createIHDRChunk(int width, int height, int bitDepth, int colorType, int compressionMethod, int filterMethod, int interlaceMethod);
+    Chunk createIDATChunk();
+    Chunk createIENDChunk();
 
 public:
-    PNGImage() = default;
+    PNGImage();
     PNGImage(std::string path);
     void loadImage(std::string path);
     void saveImage(std::string path);
     void displayImageInformation();
     std::vector<std::vector<Pixel>> getPixelData();
     void setPixelData(std::vector<std::vector<Pixel>> pixelData);
+    static void createRandomImage(int width, int height,std::string path);
     static void demo();
+    static void demo2();
 };
 
 
