@@ -327,6 +327,8 @@ std::vector<unsigned char> PNGImage::deflatePixelData(std::vector<unsigned char>
     stream.zalloc = Z_NULL;
     stream.zfree = Z_NULL;
     stream.opaque = Z_NULL;
+    stream.avail_in = 0;
+    stream.next_in = Z_NULL;
     if (int error = deflateInit(&stream, Z_DEFAULT_COMPRESSION) != Z_OK){
         std::cerr << "Error while initializing deflate stream Error: " << error << std::endl;
     }
@@ -334,7 +336,7 @@ std::vector<unsigned char> PNGImage::deflatePixelData(std::vector<unsigned char>
     stream.avail_in = decompressedData.size();
     stream.next_in = (Bytef *) decompressedData.data();
     //TODO: data could only grow to 1024 bytes --> error in compression
-    while (stream.avail_in > 0){
+    while (true){ //bit hacky but stream.avail_in > 0 did not work
         unsigned char buffer[1024];
         stream.next_out = buffer;
         stream.avail_out = sizeof buffer;
@@ -348,6 +350,9 @@ std::vector<unsigned char> PNGImage::deflatePixelData(std::vector<unsigned char>
             compressedData.insert(compressedData.end(), buffer, buffer + compressedSize);
         } else{
             std::cerr << "Error while deflating data Error:" << error << std::endl;
+            break;
+        }
+        if (error == Z_STREAM_END){
             break;
         }
     }
@@ -442,6 +447,7 @@ void PNGImage::createRandomImage(int width, int height, std::string path) {
         std::vector<Pixel> line;
         for (int j = 0; j < width; ++j) {
             Pixel pixel;
+            // Not really random but good enough
             pixel.red = rand() % 256;
             pixel.green = rand() % 256;
             pixel.blue = rand() % 256;
@@ -515,7 +521,7 @@ Chunk PNGImage::createIENDChunk() {
 void PNGImage::demo2() {
     PNGImage image;
     image.displayImageInformation();
-    PNGImage::createRandomImage(4,4,"/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/test.png");
+    PNGImage::createRandomImage(2000,2000,"/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/test.png");
     PNGImage image2("/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/test.png");
     image2.displayImageInformation();
 }
