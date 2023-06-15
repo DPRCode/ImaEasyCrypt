@@ -26,8 +26,11 @@ private:
     std::vector<Chunk> extractChunks(const unsigned char* dataArray, long long fileSize);
     void extractImageInformation();
     std::vector<unsigned char> inflatePixelData(std::vector<unsigned char> compressedData);
+    std::vector<unsigned char> deflatePixelData(std::vector<unsigned char> decompressedData);
     std::vector<std::vector<Pixel>> extractPixelData(std::vector<unsigned char> inflatedPixelData);
-    std::vector<std::vector<Pixel>> subFilter(std::vector<std::vector<Pixel>> unfilterdPixelData);
+    std::vector<unsigned char> insertPixelData(std::vector<std::vector<Pixel>> pixelData);
+    std::vector<std::vector<Pixel>> reverseSubFilter(std::vector<std::vector<Pixel>> unfilterdPixelData);
+    std::vector<std::vector<Pixel>> applySubFilter(std::vector<std::vector<Pixel>> unfilterdPixelData);
     std::vector<unsigned char> combineCompressedData();
 
 public:
@@ -37,6 +40,7 @@ public:
     void saveImage(std::string path);
     void displayImageInformation();
     std::vector<std::vector<Pixel>> getPixelData();
+    void setPixelData(std::vector<std::vector<Pixel>> pixelData);
     static void demo();
 };
 

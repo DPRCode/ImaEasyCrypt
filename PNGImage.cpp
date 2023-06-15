@@ -208,14 +208,14 @@ std::vector<std::vector<Pixel>> PNGImage::extractPixelData(std::vector<unsigned 
         }
     }
     if (filterMethod==1) {
-        pixelData = subFilter(pixelData);
+        pixelData = reverseSubFilter(pixelData);
     } else {
         std::cout<< "Filter method not supported" << std::endl;
     }
     return pixelData;
 }
 
-std::vector<std::vector<Pixel>> PNGImage::subFilter(std::vector<std::vector<Pixel>> unfilterdPixelData){
+std::vector<std::vector<Pixel>> PNGImage::reverseSubFilter(std::vector<std::vector<Pixel>> unfilterdPixelData){
     for (int i = 0; i < unfilterdPixelData.size(); ++i) {
         for (int j = 0; j < unfilterdPixelData[i].size(); ++j) {
             if (j == 0) {
@@ -251,11 +251,23 @@ void PNGImage::demo(){
     image.loadImage("/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/image.png");
     // Test image information extraction
     image.displayImageInformation();
+    // Test combine compressed data
+    std::cout << "\nCompressed Data:" <<std::endl;
+    std::vector<unsigned char> compressedData = image.combineCompressedData();
+    for (unsigned char byte:compressedData){
+        std::cout << (int) byte << " ";
+    }
     // Test inflate
     std::vector<unsigned char> inflatedpixelData = image.inflatePixelData(image.combineCompressedData());
     std::cout << "\nPixel data size: " << inflatedpixelData.size() << std::endl;
     std::cout << "Filtered Pixel Data:" <<std::endl;
     for(unsigned char byte:inflatedpixelData){
+        std::cout << (int) byte << " ";
+    }
+    // Test deflate
+    std::cout << "\n\nRecompressed Pixel Data:" <<std::endl;
+    std::vector<unsigned char> deflatedPixelData = image.deflatePixelData(inflatedpixelData);
+    for(unsigned char byte:deflatedPixelData){
         std::cout << (int) byte << " ";
     }
     // Test pixel data extraction
@@ -272,8 +284,15 @@ void PNGImage::demo(){
         }
         std::cout << std::endl;
     }
+
+    // Test pixel data insertion
+    std::cout << "\nPixel Data Insertion" <<std::endl;
+    std::vector<unsigned char> inflatedPixelData = image.insertPixelData(pixels);
+    for(unsigned char byte:inflatedPixelData){
+        std::cout << (int) byte << " ";
+    }
     // Test CRC
-    std::cout << "\nCRC Test for IDAT Chunks" <<std::endl;
+    std::cout << "\n\nCRC Test for IDAT Chunks" <<std::endl;
     for (Chunk chunk:image.chunks){
         if (chunk.type=="IDAT"){
             std::cout << "CRC: " << chunk.crc << std::endl;
@@ -281,6 +300,9 @@ void PNGImage::demo(){
             std::cout << "CRC calculated: " << chunk.crc << std::endl;
         }
     }
+    // Test if image is valid after using own deflate function
+    image.setPixelData(pixels);
+
     // Save image
     image.saveImage("/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/image2.png");
 }
@@ -298,3 +320,118 @@ std::vector<std::vector<Pixel>> PNGImage::getPixelData() {
         return std::vector<std::vector<Pixel>>();
     }
 }
+
+std::vector<unsigned char> PNGImage::deflatePixelData(std::vector<unsigned char> decompressedData) {
+    std::vector<unsigned char> compressedData;
+    z_stream stream;
+    stream.zalloc = Z_NULL;
+    stream.zfree = Z_NULL;
+    stream.opaque = Z_NULL;
+    if (int error = deflateInit(&stream, Z_DEFAULT_COMPRESSION) != Z_OK){
+        std::cerr << "Error while initializing deflate stream Error: " << error << std::endl;
+    }
+
+    stream.avail_in = decompressedData.size();
+    stream.next_in = (Bytef *) decompressedData.data();
+
+    while (stream.avail_in > 0){
+        unsigned char buffer[1024];
+        stream.next_out = buffer;
+        stream.avail_out = sizeof buffer;
+
+        int error = deflate(&stream, Z_FINISH);
+        if (error == Z_OK){
+            size_t compressedSize = sizeof(buffer) - stream.avail_out;
+            compressedData.insert(compressedData.end(), buffer, buffer + compressedSize);
+        } else if (error == Z_STREAM_END) {
+            size_t compressedSize = sizeof(buffer) - stream.avail_out;
+            compressedData.insert(compressedData.end(), buffer, buffer + compressedSize);
+        } else{
+            std::cerr << "Error while deflating data Error:" << error << std::endl;
+            break;
+        }
+    }
+    deflateEnd(&stream);
+    return compressedData;
+}
+
+std::vector<unsigned char> PNGImage::insertPixelData(std::vector<std::vector<Pixel>> pixelData) {
+    // TODO Use something else than the extracted filter method
+    filterMethod = 1;
+    if (filterMethod==1){
+        pixelData = applySubFilter(pixelData);
+    } else {
+        std::cerr << "Filter method not supported" << std::endl;
+        return std::vector<unsigned char>();
+    }
+    // Only Filter Method 0 is supported
+    filterMethod = 0;
+    std::vector<unsigned char> pixelDataVector;
+    if (bitDepth==8){
+        for (std::vector<Pixel> line:pixelData){
+            pixelDataVector.push_back(1);
+            for (Pixel pixel:line){
+                pixelDataVector.push_back(pixel.red);
+                pixelDataVector.push_back(pixel.green);
+                pixelDataVector.push_back(pixel.blue);
+            }
+        }
+    } else if (bitDepth==16){
+        for (std::vector<Pixel> line:pixelData){
+            for (Pixel pixel:line){
+                pixelDataVector.push_back(pixel.red/256);
+                pixelDataVector.push_back(pixel.red%256);
+                pixelDataVector.push_back(pixel.green/256);
+                pixelDataVector.push_back(pixel.green%256);
+                pixelDataVector.push_back(pixel.blue/256);
+                pixelDataVector.push_back(pixel.blue%256);
+            }
+        }
+    } else {
+        std::cerr << "Bit depth not supported" << std::endl;
+        return std::vector<unsigned char>();
+    }
+    return pixelDataVector;
+}
+
+std::vector<std::vector<Pixel>> PNGImage::applySubFilter(std::vector<std::vector<Pixel>> unfilterdPixelData) {
+    std::vector<std::vector<Pixel>> filteredPixelData;
+    for (int i = 0; i < unfilterdPixelData.size(); ++i) {
+        std::vector<Pixel> filteredLine;
+        for (int j = 0; j < unfilterdPixelData[i].size(); ++j) {
+            Pixel pixel;
+            if (j==0){
+                pixel.red = unfilterdPixelData[i][j].red;
+                pixel.green = unfilterdPixelData[i][j].green;
+                pixel.blue = unfilterdPixelData[i][j].blue;
+            } else {
+                pixel.red = unfilterdPixelData[i][j].red - unfilterdPixelData[i][j-1].red;
+                pixel.green = unfilterdPixelData[i][j].green - unfilterdPixelData[i][j-1].green;
+                pixel.blue = unfilterdPixelData[i][j].blue - unfilterdPixelData[i][j-1].blue;
+            }
+            filteredLine.push_back(pixel);
+        }
+        filteredPixelData.push_back(filteredLine);
+    }
+    return filteredPixelData;
+}
+
+void PNGImage::setPixelData(std::vector<std::vector<Pixel>> pixelData) {
+    if (this->chunks.size()==0){
+        std::cout << "No image loaded" << std::endl;
+        return;
+    } else {
+        std::vector<unsigned char> inflatedPixelData = insertPixelData(pixelData);
+        std::vector<unsigned char> compressedPixelData = deflatePixelData(inflatedPixelData);
+        std::vector<Chunk> newChunks;
+        for (Chunk chunk:chunks){
+            if (chunk.type=="IDAT"){
+                chunk.data = compressedPixelData;
+                chunk.calculateCRC();
+            }
+            newChunks.push_back(chunk);
+        }
+        this->chunks = newChunks;
+    }
+}
+
