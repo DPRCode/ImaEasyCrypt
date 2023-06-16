@@ -187,32 +187,38 @@ std::vector<unsigned char> PNGImage::inflatePixelData(std::vector<unsigned char>
 std::vector<std::vector<Pixel>> PNGImage::extractPixelData(std::vector<unsigned char> inflatedPixelData){
     std::vector<std::vector<Pixel>> pixelData(height, std::vector<Pixel>(width));
     filterMethod = inflatedPixelData[0];
-    int byteCounter = 1;
-    int pixelCounter = 0;
-    while(byteCounter<inflatedPixelData.size()){
-        if (byteCounter%(width*3+1)==0){
-            byteCounter++;
-        } else{
-            if (bitDepth==8){
-                int column = pixelCounter/width;
-                int row = pixelCounter%width;
-                pixelData[column][row] = Pixel(inflatedPixelData[byteCounter],inflatedPixelData[byteCounter+1],inflatedPixelData[byteCounter+2]);
-                byteCounter+=3;
-                pixelCounter++;
-            } else if (bitDepth==16){
-                pixelData[byteCounter%width][byteCounter/width] = Pixel(inflatedPixelData[byteCounter]<<8|inflatedPixelData[byteCounter+1],inflatedPixelData[byteCounter+2]<<8|inflatedPixelData[byteCounter+3],inflatedPixelData[byteCounter+4]<<8|inflatedPixelData[byteCounter+5]);
-                byteCounter+=6;
-            } else {
-                std::cout << "Bit depth not supported" << std::endl;
+    if(colorType!=2){
+        std::cerr << "Only truecolor images are supported" << std::endl;
+        return pixelData;
+    } else{
+        int byteCounter = 1;
+        int pixelCounter = 0;
+        while(byteCounter<inflatedPixelData.size()){
+            // Skip the filter byte
+            if (byteCounter%(width*3+1)==0){
+                byteCounter++;
+            } else{
+                if (bitDepth==8){
+                    int column = pixelCounter/width;
+                    int row = pixelCounter%width;
+                    pixelData[column][row] = Pixel(inflatedPixelData[byteCounter],inflatedPixelData[byteCounter+1],inflatedPixelData[byteCounter+2]);
+                    byteCounter+=3;
+                    pixelCounter++;
+                } else if (bitDepth==16){
+                    pixelData[byteCounter%width][byteCounter/width] = Pixel(inflatedPixelData[byteCounter]<<8|inflatedPixelData[byteCounter+1],inflatedPixelData[byteCounter+2]<<8|inflatedPixelData[byteCounter+3],inflatedPixelData[byteCounter+4]<<8|inflatedPixelData[byteCounter+5]);
+                    byteCounter+=6;
+                } else {
+                    std::cout << "Bit depth not supported" << std::endl;
+                }
             }
         }
+        if (filterMethod==1) {
+            pixelData = reverseSubFilter(pixelData);
+        } else {
+            std::cout<< "Filter method not supported" << std::endl;
+        }
+        return pixelData;
     }
-    if (filterMethod==1) {
-        pixelData = reverseSubFilter(pixelData);
-    } else {
-        std::cout<< "Filter method not supported" << std::endl;
-    }
-    return pixelData;
 }
 
 std::vector<std::vector<Pixel>> PNGImage::reverseSubFilter(std::vector<std::vector<Pixel>> unfilterdPixelData){
@@ -372,29 +378,34 @@ std::vector<unsigned char> PNGImage::insertPixelData(std::vector<std::vector<Pix
     // Only Filter Method 0 is supported
     filterMethod = 0;
     std::vector<unsigned char> pixelDataVector;
-    if (bitDepth==8){
-        for (std::vector<Pixel> line:pixelData){
-            pixelDataVector.push_back(1);
-            for (Pixel pixel:line){
-                pixelDataVector.push_back(pixel.red);
-                pixelDataVector.push_back(pixel.green);
-                pixelDataVector.push_back(pixel.blue);
+    if(colorType!=2){
+        std::cerr << "Only color type 2 is supported" << std::endl;
+        return pixelDataVector;
+    }else{
+        if (bitDepth==8){
+            for (std::vector<Pixel> line:pixelData){
+                pixelDataVector.push_back(1);
+                for (Pixel pixel:line){
+                    pixelDataVector.push_back(pixel.red);
+                    pixelDataVector.push_back(pixel.green);
+                    pixelDataVector.push_back(pixel.blue);
+                }
             }
-        }
-    } else if (bitDepth==16){
-        for (std::vector<Pixel> line:pixelData){
-            for (Pixel pixel:line){
-                pixelDataVector.push_back(pixel.red/256);
-                pixelDataVector.push_back(pixel.red%256);
-                pixelDataVector.push_back(pixel.green/256);
-                pixelDataVector.push_back(pixel.green%256);
-                pixelDataVector.push_back(pixel.blue/256);
-                pixelDataVector.push_back(pixel.blue%256);
+        } else if (bitDepth==16){
+            for (std::vector<Pixel> line:pixelData){
+                for (Pixel pixel:line){
+                    pixelDataVector.push_back(pixel.red/256);
+                    pixelDataVector.push_back(pixel.red%256);
+                    pixelDataVector.push_back(pixel.green/256);
+                    pixelDataVector.push_back(pixel.green%256);
+                    pixelDataVector.push_back(pixel.blue/256);
+                    pixelDataVector.push_back(pixel.blue%256);
+                }
             }
+        } else {
+            std::cerr << "Bit depth not supported" << std::endl;
+            return std::vector<unsigned char>();
         }
-    } else {
-        std::cerr << "Bit depth not supported" << std::endl;
-        return std::vector<unsigned char>();
     }
     return pixelDataVector;
 }
