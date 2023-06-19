@@ -135,9 +135,13 @@ void Stegano::demo3(){
     PNGImage image = PNGImage("/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/demo.png");
     std::vector<std::vector<Pixel>> imageDat = image.getPixelData();
     stegano.leastSignificantBitEncode(imageDat, message);
-    image.setPixelData(imageDat);
-    image.saveImage("/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/image3_encoded.png");
-    std::string decodedMessage = stegano.leastSignificantBitDecode(imageDat);
+    PNGImage image2 = PNGImage();
+    image2.setPixelData(imageDat);
+    image2.saveImage("/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/image3_encoded.png");
+    PNGImage image3;
+    image.loadImage("/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/image3_encoded.png");
+    std::vector<std::vector<Pixel>> imageDat2 = image.getPixelData();
+    std::string decodedMessage = stegano.leastSignificantBitDecode(imageDat2);
     stegano.writeTextFile("/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/decodedMessage.txt", decodedMessage);
 }
     void Stegano::modifyLSB(uint16_t& color, bool bit) {

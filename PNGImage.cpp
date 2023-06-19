@@ -446,6 +446,9 @@ void PNGImage::setPixelData(std::vector<std::vector<Pixel>> pixelData) {
                 chunk.length = compressedPixelData.size();
                 chunk.calculateCRC();
             }
+            if (chunk.type=="IHDR"){
+                chunk=(createIHDRChunk(pixelData.size(),pixelData[0].size(),8,2,0,0,0));
+            }
             newChunks.push_back(chunk);
         }
         this->chunks = newChunks;
@@ -475,7 +478,7 @@ void PNGImage::createRandomImage(int width, int height, std::string path) {
 
 PNGImage::PNGImage() {
     this->chunks = std::vector<Chunk>();
-    chunks.push_back(createIHDRChunk(0,0,0,0,0,0,0));
+    chunks.push_back(createIHDRChunk(0,0,8,2,0,0,0));
     chunks.push_back(createIDATChunk());
     chunks.push_back(createIENDChunk());
     this->extractImageInformation();
