@@ -8,6 +8,46 @@ Vorerst wird sich auf Textnachrichten im *.txt* Format und Bilder im *PNG* Forma
 
 # Vorwort
 Aufgrund diverser Probleme im ersten Anlauf der Projektumsetzung die sich in größten Teilen auf die Installation von externen Library bezogen, musste das Projekt neu strukturiert werden. Deshalb wurde nun mit möglichst wenigen Externen Librarys geaarbeitet. Hieraus resultiert, dass der Prozess des Einlesens einer PNG Datei zu einem Kernproblem des Projektes wurde.
+
+# Benutzung
+Erstelle ein Build Verzeichnis mit:
+
+```bash
+mkdir build
+```
+
+Wechsele ins Build Verzeichnis und führe CMake aus:
+
+```bash
+cd build
+cmake ..
+```
+
+Führe anschließend make aus:
+
+```bash
+make
+```
+
+Nun sollte sich im Build Verzeichnis eine ausführbare Datei mit dem Namen `ImaEasyCrypt` befinden. Diese kann mit folgendem Befehl ausgeführt werden:
+
+Um eine Nachricht in ein Bild zu verstecken:
+```bash
+./ImaEasyCrypt INPUTTEXT INPUTIMAGE OUTPUTIMAGE -m encode
+```
+Um eine Nachricht aus einem Bild zu extrahieren:
+```bash
+./ImaEasyCrypt INPUTIMAGE OUTPUTTEXT -m decode
+```
+Um ein zufälliges Bild zu generieren:
+```bash
+./ImaEasyCrypt OUTPUTIMAGE -m generate -w WIDTH -h HEIGHT
+```
+
+Beachte das die Application nur mit Truecolor PNG Bildern funktioniert.
+Außerdem verursachen Bilder mit mehreren IDAT Chunks aktuell noch Probleme.
+
+
 # Problemstellungen
 ## Einlesen einer PNG Datei
 ### Einschub: Aufbau einer PNG 
