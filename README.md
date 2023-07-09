@@ -12,7 +12,9 @@ Aufgrund diverser Probleme im ersten Anlauf der Projektumsetzung die sich in gr�
 ## Einlesen einer PNG Datei
 ### Einschub: Aufbau einer PNG 
 Quellen:
+
 [Portable Network Graphics (PNG) Volker Krause Technische Hochschule Aachen](http://www-i4.informatik.rwth-aachen.de/content/teaching/proseminars/sub/2002_2003_ws_docs/png.pdf)
+
 [PNG (Portable Network Graphics) Specification W3C Recommendation 01-October-1996](https://www.w3.org/TR/PNG-Introduction.html)
 
 Die ersten 8 Byte einer PNG Datei sind die bereits erwähnte **Magic Number** also folgende Zahlenfolge im Dezimalsystem: 137, 80, 78, 71, 13, 10, 26, 10. An dieser lässt sich eine PNG Datei erkennen. Weiterhin besteht eine PNG Datei aus sogenannten Chunks.
@@ -90,7 +92,7 @@ classDiagram
 graph TB
 	class Chunk{
 		+ string type
-		+ ~unsigned char~ data 
+		+ ~unsigned_char~ data 
 		+ unsigned int length
 		+ unsigned int crc
 		+ calculateCRC(): void
@@ -107,13 +109,13 @@ graph TB
 		- int interlaceMethod
 		- extractChunks(const unsigned char* dataArray, long long fileSize): ~Chunk~
 		- extractImageInformation(): void
-		- inflatePixelData(~unsigned char~ compressedData): ~unsigned char 
-		- deflatePixelData(~unsigned char~ compressedData): ~unsigned char
-		- extractPixelData(~unsigned char~ inflatedPixelData): ~Pixel~
-		- insertPixelData(~Pixel~ pixelData): ~unsigned char~
+		- inflatePixelData(~unsigned_char~ compressedData): ~unsigned_char~
+		- deflatePixelData(~unsigned_char~ compressedData): ~unsigned_char~
+		- extractPixelData(~unsigned_char~ inflatedPixelData): ~Pixel~
+		- insertPixelData(~Pixel~ pixelData): ~unsigned_char~
 		- reverseSubFilter(~Pixel~ filterdPixelData): ~Pixel~
 		- applySubFilter(~Pixel~ unfilterdPixelData): ~Pixel~
-		- combineCompressedData(): ~unsigned char~
+		- combineCompressedData(): ~unsigned_char~
 		- createIHDRChunk(): Chunk 
 		- createIDATChunk(): Chunk 
 		- createIENDChunk(): Chunk 
@@ -121,7 +123,7 @@ graph TB
 		+ saveImage(string Path): void
 		+ displayImageInformation(): void
 		+ getPixelData(): ~Pixel~
-		+ setPixelData(~Pixel~): void
+		+ setPixelData( ~Pixel~ ): void
 		+ createRandomImage(int with, int height, string path): void
 	}
 	class Pixel{
@@ -192,8 +194,8 @@ Weiter Use-Cases für Steganographie sind das Watermarking und Fingerprinting, u
 ### Least Significant Bit Steganographie
 Um anschließend dennoch die eigentliche Aufgabenstellung der Steganographie umzusetzen, wurde sich auf eine sehr einfache Form beschränkt.
 #### Einschub Least Significant Bit Steganographie
-Das letzte Bit eines Pixel bzw eines Pixelwerts bei mehrkanaligen Bildern wir verwendet um die Nachricht zu Speichern. So können in einem Grauwertbild welches 8 Bit nutzt $$Laenge*Breite$$
-An Bits gespeichert werden. Bei einer 3-Kanaligen RGB Bild können $$Länge*Breite*3$$ Bits gespeichert werden. Ein 400x400 Pixel Bild kann somit $400*400*3=480000$ Bits speichern. Geht man hierbei davon aus das ASCII Zeichen kodiert werden sollen kann eine Nachricht mit  $\frac{480000}{8}=60000$ Zeichen gespeichert werden. Dies geht davon aus das ein ASCII Zeichen 8 Bits benötigt. Wenn der Zeichensatz reduziert wird kann damit auch die Nachrichtenlänge erhöht werden.
+Das letzte Bit eines Pixel bzw eines Pixelwerts bei mehrkanaligen Bildern wir verwendet um die Nachricht zu Speichern. So können in einem Grauwertbild welches 8 Bit nutzt $Laenge*Breite$
+An Bits gespeichert werden. Bei einer 3-Kanaligen RGB Bild können $Länge*Breite*3$ Bits gespeichert werden. Ein 400x400 Pixel Bild kann somit $400*400*3=480000$ Bits speichern. Geht man hierbei davon aus das ASCII Zeichen kodiert werden sollen kann eine Nachricht mit  $\frac{480000}{8}=60000$ Zeichen gespeichert werden. Dies geht davon aus das ein ASCII Zeichen 8 Bits benötigt. Wenn der Zeichensatz reduziert wird kann damit auch die Nachrichtenlänge erhöht werden.
 Dieser Ansatz ist aufgrund seiner simplen Art auch entsprechend einfach zu identifizieren.
 
 #### Umsetzung
