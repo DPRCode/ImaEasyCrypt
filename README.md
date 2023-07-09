@@ -151,12 +151,12 @@ std::cerr << "Error: File is not a PNG image" << std::endl;
 ### Auslesen der Chunk Daten
 Anschließend können die einzelnen Chunks ausgelesen werden. Relevant sind hierbei der `IHDR` Chunk und der `IDAT` Chunk. Im Header Chunk befinden sich alle Metadaten des Bildes die aufgrund der festen Struktur ebenfalls mit Bit-Operationen extrahiert werden können und so Höhe, Breite und weiters liefern.
 Um die Daten des `IDAT` Chunks auszulesen müssen sie zuerst dekomprimiert werden. Hierzu kam die *Z-Library* zu Einsatz, die entsprechende `inflate` und `deflate` Algorithmen liefert. Auf die dekomprimierten Daten musste kann jetzt der jeweilige Filter angewandt werden. Bei der Implementierung wurde sich auf *Truecolor-Images* und den *Sub-Filter* beschränkt. Der Sub-Filter speichert statt den eigentlichen Pixel Werten immer nur die Differenz zum vorherigen Pixel:
-$$P´_x=P_x-P_{x-1} $$
+$$P´_x=P_x-P_{x-1}$$
 Um die eigentlichen RGB-Werte zu erhalten muss der Filter entsprechend umgekehrt werden:
-$$P_x=(P´_x+P´_{x-1})\bmod 256 $$
+$$P_x=(P´_x+P´_{x-1})\bmod 256$$
 Ebenfalls muss das jeweilige Filter-byte am Anfang jeder Bildzeile entfernt werden, welches den Filtertyp beschreibt.
 ### Erstellen eigener Chunks
-Ein eigener `IHDR` Chunk kann aus den Bildinformationen zusammengesetzt werden, muss aber immer upgedatet werden wenn die Pixeldaten gesetzt werden, sodass Höhe und Breite des Bildes korrekt abgegeben werden.
+Ein eigener `IHDR` Chunk kann aus den Bildinformationen zusammengesetzt werden, muss aber immer upgedatet werden, wenn die Pixeldaten gesetzt werden, sodass Höhe und Breite des Bildes korrekt abgegeben werden.
 Um einen `IDAT`Chunk zu erstellen müssen die oben genannten Prozesse umgekehrt werden. Ein wichtiger Aspekt jedes Chunks ist die *CRC Prüfsumme* die nach jeder Änderung en einem Chunk neu berechnet werden muss. Hierzu wurde ebenfalls ein Algorithmus aus der *Z-Library* eingesetzt.
 Nachdem alle benötigten Chunks erstellt wurden können diese bitweise in eine Datei geschrieben werden um so eine gültige PNG Datei zu erzeugen.
 
@@ -208,9 +208,9 @@ graph TB
 		- getLSB(unsigned char value): bool
 		+ readTextFile(string path): string 
 		+ writeTextFile(string path, string content): void
-		+ leastsiginficantBitEncode(~Pixel~& image, string message): void
-		+ leastsiginficantBitDecode(~Pixel~& image): string
-		+ checkSizes(~Pixel~& image, string & message): bool
+		+ leastsiginficantBitEncode(~Pixel~ & image, string message): void
+		+ leastsiginficantBitDecode(~Pixel~ & image): string
+		+ checkSizes(~Pixel~ & image, string & message): bool
 	}
 ```
 Um die Nachricht im letzten Bit der Farbwerte zu verstecken wird jeder Pixel durchgegangen und der jeweilige Farbwert im letzten Bit zum aktuellen Bit der Nachricht geändert. Das ende er Nachricht wird im Bild durch einen *End-of-file* Ascii Wert (`eof`=`\26`) vermerkt. Um die Nachricht zu dekodieren werden die Bilddaten bis zu diesem Zeichen durchlaufen und die Letzten Bits jeweils extrahiert, um so die Nachricht zu erhalten.
