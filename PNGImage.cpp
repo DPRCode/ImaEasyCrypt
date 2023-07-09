@@ -421,6 +421,7 @@ std::vector<std::vector<Pixel>> PNGImage::applySubFilter(std::vector<std::vector
                 pixel.green = unfilterdPixelData[i][j].green;
                 pixel.blue = unfilterdPixelData[i][j].blue;
             } else {
+                //Todo Negative Numbers?
                 pixel.red = unfilterdPixelData[i][j].red - unfilterdPixelData[i][j-1].red;
                 pixel.green = unfilterdPixelData[i][j].green - unfilterdPixelData[i][j-1].green;
                 pixel.blue = unfilterdPixelData[i][j].blue - unfilterdPixelData[i][j-1].blue;

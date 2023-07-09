@@ -16,8 +16,9 @@ public:
     std::string leastSignificantBitDecode(std::vector<std::vector<Pixel>>& image);
     bool checkSizes(std::vector<std::vector<Pixel>>& image, std::string& message);
     static void demo3();
+    static void demo4();
 private:
-    void modifyLSB(uint16_t& red, bool bit);
+    void modifyLSB(uint16_t& color, bool bit);
     bool getLSB(unsigned char value);
 };
 

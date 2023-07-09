@@ -144,11 +144,39 @@ void Stegano::demo3(){
     std::string decodedMessage = stegano.leastSignificantBitDecode(imageDat2);
     stegano.writeTextFile("/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/decodedMessage.txt", decodedMessage);
 }
-    void Stegano::modifyLSB(uint16_t& color, bool bit) {
-        if (bit) {
-            color |= 0x0001; // Setze das LSB auf 1
-        } else {
-            color &= 0xFFFE; // Setze das LSB auf 0
-        }
+void Stegano::modifyLSB(uint16_t& color, bool bit) {
+    if (bit) {
+        color |= 0x0001; // Setze das LSB auf 1
+    } else {
+        color &= 0xFFFE; // Setze das LSB auf 0
     }
+}
+
+void Stegano::demo4(){
+    // Steganographie-Objekt erzeugen
+    Stegano stegano;
+    // Textdatei einlesen
+    std::string message = stegano.readTextFile("/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/message.txt");
+    // Bild einlesen
+    PNGImage image = PNGImage("/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/random.png");
+    // Pixel-Daten auslesen
+    std::vector<std::vector<Pixel>> imageDat = image.getPixelData();
+    // Test-speichern des Bildes
+    image.saveImage("/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/demo2.png");
+    // Nachricht in Bild verstecken
+    stegano.leastSignificantBitEncode(imageDat, message);
+    // Pixel-Daten in Bild schreiben
+    image.setPixelData(imageDat);
+    // Speichern des Bildes
+    image.saveImage("/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/demo_encoded.png");
+    // Codiertes Bild einlesen
+    PNGImage image2 = PNGImage();
+    image2.loadImage("/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/demo.png");
+    // Pixel-Daten auslesen
+    std::vector<std::vector<Pixel>> imageDat2 = image2.getPixelData();
+    // Nachricht aus Bild extrahieren
+    std::string decodedMessage = stegano.leastSignificantBitDecode(imageDat2);
+    // Nachricht in Textdatei schreiben
+    stegano.writeTextFile("/home/janek/SynologyDrive/HS_Mainz/SS23/EFFProg/ImaEasyCrypt/decodedMessage.txt", decodedMessage);
+}
 
