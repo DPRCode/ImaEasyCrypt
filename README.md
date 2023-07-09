@@ -1,13 +1,13 @@
 # Aufgabenstellung
 Ein Konsolenprogramm zum Verstecken von Nachrichten in Textform in Bilddateien, ohne das äußere Erscheinungsbild und die Signatur des Bildes fundamental zu ändern. Die Änderung soll hierbei so gering sein, wie es der Umfang der Nachricht zulässt.
 
-Vorerst wird sich auf Textnachrichten im *.txt* Format und Bilder im *PNG* Format beschränkt. Vorbehalten wird sich weitere Formate und Datenarten hinzuzufügen (Bsp eine Kodierung eines Bildes im Bild). Der Fokus des Algorithmus soll auf der Geringhaltung der direkt sichtbaren, äußeren Änderungen am Bild liegen. Nebensächlich aber trotzdem Betrachtet werden sollen Änderungen die durch einfache Analyse der Rasterdaten des Bildes entdeckt werden könnten. Hierzu zählt beispielsweise ein Histogramm.
+Vorerst wird sich auf Textnachrichten im *.txt* Format und Bilder im *PNG* Format beschränkt. Vorbehalten wird sich weitere Formate und Datenarten hinzuzufügen (Bsp eine Kodierung eines Bildes im Bild). Der Fokus des Algorithmus soll auf der Geringhaltung der direkt sichtbaren, äußeren Änderungen am Bild liegen. Nebensächlich aber trotzdem betrachtet werden sollen Änderungen die durch einfache Analyse der Rasterdaten des Bildes entdeckt werden könnten. Hierzu zählt beispielsweise ein Histogramm.
 
 >Warum PNG?
 >Aufgrund der Verlustfreien Komprimierung geht der Inhalt der Nachrichten nicht verloren.
 
 # Vorwort
-Aufgrund diverser Probleme im ersten Anlauf der Projektumsetzung die sich in größten Teilen auf die Installation von externen Library bezogen, musste das Projekt neu strukturiert werden. Deshalb wurde nun mit möglichst wenigen Externen Librarys geaarbeitet. Hieraus resultiert, dass der Prozess des Einlesens einer PNG Datei zu einem Kernproblem des Projektes wurde.
+Aufgrund diverser Probleme im ersten Anlauf der Projektumsetzung die sich in größten Teilen auf die Installation von externen Library bezogen, musste das Projekt neu strukturiert werden. Deshalb wurde nun mit möglichst wenigen Externen Library's gearbeitet. Hieraus resultiert, dass der Prozess des Einlesens einer PNG Datei zu einem Kernproblem des Projektes wurde.
 
 # Benutzung
 Erstelle ein Build Verzeichnis mit:
@@ -44,7 +44,7 @@ Um ein zufälliges Bild zu generieren:
 ./ImaEasyCrypt OUTPUTIMAGE -m generate -w WIDTH -h HEIGHT
 ```
 
-Beachte das die Application nur mit Truecolor PNG Bildern funktioniert.
+Beachte das die Application nur mit True-color PNG Bildern funktioniert.
 Außerdem verursachen Bilder mit mehreren IDAT Chunks aktuell noch Probleme.
 
 
@@ -68,7 +68,7 @@ Die Chunks sind einzelne Datenblöcke mit unterschiedlichen Funktionen. Der Aufb
 | n byte | Datenblock            |
 | 4 byte | Prüfsumme             |
 
-Wichtig zu beachten ist das die ersten Bytes die Länge des Datenblocks beschreiben und nicht die des gesamten Chunks. Der Chunk-Typ ist in ASCII codiert Hierbei besitzt das 5 Bit des ersten Bytes (also des ersten Buchstabens) eine besondere Bedeutung, Dieses Bit unterscheidet in ASCII die Groß- und Kleinschreibung und wird im PNG Format als `Ancillary bit` genutzt. Es zeigt also an ob der entsprechende Chunk kritische Daten des Bildes enthält, die nicht weggelassen werden können. Der Chunk-Typ von essentiellen Chunks beginnt somit mit einem Großbuchstaben. Der Datenblock enthält die spezifischen Daten der Chunks und unterscheidet sich je nach Chunk-Typ. Hierzu später mehr. Aus Datenblock und Chunk-Typ wird anschließend eine CRC Prüfsumme (Cyclic Redundancy Check) gebildet die in den letzten 4 byte des Chunks gespeichert wird.
+Wichtig zu beachten ist das die ersten Bytes die Länge des Datenblocks beschreiben und nicht die des gesamten Chunks. Der Chunk-Typ ist in ASCII codiert. Hierbei besitzt das 5 Bit des ersten Bytes (also des ersten Buchstabens) eine besondere Bedeutung. Dieses Bit unterscheidet in ASCII die Groß- und Kleinschreibung und wird im PNG Format als `Ancillary bit` genutzt. Es zeigt also an, ob der entsprechende Chunk kritische Daten des Bildes enthält, die nicht weggelassen werden können. Der Chunk-Typ von essenziellen Chunks beginnt somit mit einem Großbuchstaben. Der Datenblock enthält die spezifischen Daten der Chunks und unterscheidet sich je nach Chunk-Typ. Hierzu später mehr. Aus Datenblock und Chunk-Typ wird anschließend eine CRC Prüfsumme (Cyclic Redundancy Check) gebildet die in den letzten 4 byte des Chunks gespeichert wird.
 
 ### Chunktypen
 #### IHDR
@@ -99,7 +99,7 @@ Sowohl die Kompressions-Methode als auch die Filter-Methode sind aktuell immer a
 #### IEND
 Der `IEND` Chunk makiert das Ende der Datei und besitzt keine Daten.
 #### IDATA
-Der `IDAT` Chunk enthält die eigentlichen Bilddaten was dazu führt das jede gültige PNG mindestens einen `IDAT` Chunk besitzen muss. Die Bilddaten können aber auch auf mehrere Daten-Chunks aufgeteilt werden. Jedoch müssen diese in der richtigen Reinfolge aufeinanderfolgen, damit das Bild korrekt dargestellt wird.
+Der `IDAT` Chunk enthält die eigentlichen Bilddaten was dazu führt das jede gültige PNG mindestens einen `IDAT` Chunk besitzen muss. Die Bilddaten können aber auch auf mehrere Daten-Chunks aufgeteilt werden. Jedoch müssen diese in der richtigen Reihenfolge aufeinanderfolgen, damit das Bild korrekt dargestellt wird.
 Die Daten innerhalb der Chunks sind komprimiert und gefiltert. Zur Komprimierung wird die [deflate/inflate Kompression](https://www.w3.org/TR/PNG-Compression.html) genutzt. Diese wird jedoch auf die gesamten Daten und nicht auf jeden einzelnen Chunk angewendet. Zusätzlich werden die Pixelwerte noch gefiltert wobei `adaptive Filtering` eingesetzt wird. Adaptive Filtering besitzt verschiedene Filtermethoden, welche im ersten Bit in jeder Bild-Zeile definiert werden:
 
 | Typ | Name                    |
@@ -116,7 +116,7 @@ Mehr zu den einzelnen Filtertypen [hier](https://www.w3.org/TR/PNG-Filters.html)
 ##### PLTE
 Um indizierte Bilder darstellen zu können wird der `PLTE` Chunk benötigt der 256 Paletteneinträge (da je ein byte genutzt wird um auf den Eintrag zu referenzieren) enthalten kann. Diese bestehen dann jeweils aus drei Werten für Rot, Grün, Blau Farbwerte.
 ##### Ancillary chunks
-Diese Chunks sind optional. Beispiele sind `bKGD` zur Definition einer Hintergrundfarbe, `gAMA` um den Gamma Wert einer Kamera zu speichern oder auch das ablegen von Texten mit ` tEXt`
+Diese Chunks sind optional. Beispiele sind `bKGD` zur Definition einer Hintergrundfarbe, `gAMA` um den Gamma Wert einer Kamera zu speichern oder auch das Ablegen von Texten mit ` tEXt`
 
 ## Übersicht
 Aufbau einer 3x3 PNGs:
@@ -177,12 +177,12 @@ graph TB
 ```
 
 Ein PNG Bild besteht aus einer Vielzahl von Chunks die in eine Liste von Chunk Objekten eingelesen werden. Da ein Chunk immer aus den gleichen drei Bestandteilen besteht lässt sich dieser entsprechend gut als eigene Klasse umsetzen.
-Mit Hilfe von Bit-Shifting können die einzelnen Parameter der Chunks extrahiert werden:
+Mithilfe von Bit-Shifting können die einzelnen Parameter der Chunks extrahiert werden:
 ```c++
 chunk.length = dataArray[arrayIndex] << 24 | dataArray[arrayIndex + 1] << 16 | dataArray[arrayIndex + 2] << 8 | dataArray[arrayIndex + 3];
 ```
 
-Vor dem laden der einzelnen Chunks wird ebenfalls die sogenannte Magic Number überprüft:
+Vor dem Laden der einzelnen Chunks wird ebenfalls die sogenannte Magic Number überprüft:
 ```c++
 if (dataArray[0] != 137 || dataArray[1] != 80 || dataArray[2] != 78 || dataArray[3] != 71 || dataArray[4] != 13 || dataArray[5] != 10 || dataArray[6] != 26 || dataArray[7] != 10) {  
 std::cerr << "Error: File is not a PNG image" << std::endl;
@@ -190,18 +190,18 @@ std::cerr << "Error: File is not a PNG image" << std::endl;
 
 ### Auslesen der Chunk Daten
 Anschließend können die einzelnen Chunks ausgelesen werden. Relevant sind hierbei der `IHDR` Chunk und der `IDAT` Chunk. Im Header Chunk befinden sich alle Metadaten des Bildes die aufgrund der festen Struktur ebenfalls mit Bit-Operationen extrahiert werden können und so Höhe, Breite und weiters liefern.
-Um die Daten des `IDAT` Chunks auszulesen müssen sie zuerst dekomprimiert werden. Hierzu kam die *Z-Library* zu Einsatz, die entsprechende `inflate` und `deflate` Algorithmen liefert. Auf die dekomprimierten Daten musste kann jetzt der jeweilige Filter angewandt werden. Bei der Implementierung wurde sich auf *Truecolor-Images* und den *Sub-Filter* beschränkt. Der Sub-Filter speichert statt den eigentlichen Pixel Werten immer nur die Differenz zum vorherigen Pixel:
+Um die Daten des `IDAT` Chunks auszulesen müssen sie zuerst dekomprimiert werden. Hierzu kam die *Z-Library* zu Einsatz, die entsprechende `inflate` und `deflate` Algorithmen liefert. Auf die dekomprimierten Daten kann jetzt der jeweilige Filter angewandt werden. Bei der Implementierung wurde sich auf *Truecolor-Images* und den *Sub-Filter* beschränkt. Der Sub-Filter speichert statt den eigentlichen Pixelwerten immer nur die Differenz zum vorherigen Pixel:
 $$P´_x=P_x-P_{x-1}$$
 Um die eigentlichen RGB-Werte zu erhalten muss der Filter entsprechend umgekehrt werden:
 $$P_x=(P´_x+P´_{x-1})\bmod 256$$
 Ebenfalls muss das jeweilige Filter-byte am Anfang jeder Bildzeile entfernt werden, welches den Filtertyp beschreibt.
 ### Erstellen eigener Chunks
 Ein eigener `IHDR` Chunk kann aus den Bildinformationen zusammengesetzt werden, muss aber immer upgedatet werden, wenn die Pixeldaten gesetzt werden, sodass Höhe und Breite des Bildes korrekt abgegeben werden.
-Um einen `IDAT`Chunk zu erstellen müssen die oben genannten Prozesse umgekehrt werden. Ein wichtiger Aspekt jedes Chunks ist die *CRC Prüfsumme* die nach jeder Änderung en einem Chunk neu berechnet werden muss. Hierzu wurde ebenfalls ein Algorithmus aus der *Z-Library* eingesetzt.
-Nachdem alle benötigten Chunks erstellt wurden können diese bitweise in eine Datei geschrieben werden um so eine gültige PNG Datei zu erzeugen.
+Um einen `IDAT`Chunk zu erstellen müssen die oben genannten Prozesse umgekehrt werden. Ein wichtiger Aspekt jedes Chunks ist die *CRC Prüfsumme* die nach jeder Änderung an einem Chunk neu berechnet werden muss. Hierzu wurde ebenfalls ein Algorithmus aus der *Z-Library* eingesetzt.
+Nachdem alle benötigten Chunks erstellt wurden können diese bitweise in eine Datei geschrieben werden, um so eine gültige PNG Datei zu erzeugen.
 
 ## Generieren von zufälligen Pixeldaten
-Um zu überprüfen, ob sich gültige PNG Dateien erzeugen lassen wurde eine Methode implementiert die zufällige Farbwerte generiert und diese als ein PNG Bild abspeichert.
+Um zu überprüfen, ob sich gültige PNG Dateien erzeugen lassen wurde eine Methode implementiert, die zufällige Farbwerte generiert und diese als ein PNG Bild abspeichert.
 ![test.png](DocumentationRes/test.png)
 *Ein Bild mit zufälligen Farbwerten der Größe 2000x2000 Pixel*
 
@@ -213,7 +213,7 @@ Um zu überprüfen, ob sich gültige PNG Dateien erzeugen lassen wurde eine Meth
 >
 > Steganographie ist die Kunst oder Technik, versteckte Informationen in anderen Daten oder Medien zu verbergen, ohne dass der Empfänger dies bemerkt. Die Informationen können in verschiedenen Formen wie Bildern, Videos, Audiodateien oder Texten versteckt werden. Steganographie wird häufig verwendet, um geheime Nachrichten zu übermitteln oder digitale Spuren zu verwischen. Es gibt viele Methoden und Algorithmen für die Steganographie, einschließlich der Verwendung von Least Significant Bit (LSB) -Techniken und der Verwendung von kryptografischen Verschlüsselungsalgorithmen.
 
-Die Steganographie ist das verstecken von Informationen in Daten oder Medien, ohne das dritte Individuen dies erkennen. Hierzu können Bilder, Videos etc dienen.
+Die Steganographie ist das Verstecken von Informationen in Daten oder Medien, ohne das dritte Individuen dies erkennen. Hierzu können Bilder, Videos etc dienen.
 
 >Quote:
 > 
@@ -225,9 +225,9 @@ Wichtig ist die Steganographie von der Kryptographie abzugrenzen. In der Stegano
 >Quote:
 > 
 >„Es darf nicht der Geheimhaltung bedürfen und soll ohne Schaden in Feindeshand fallen können.“
->– Auguste Kerckhoffs: La cryptographie militaire 1883
+>– Auguste Kerckhoffs: La cryptografie militaire 1883
 
-Eine Kombination von Steganographie und Kryptographie ist also sinnvoll wenn Kommunikation versteckt und sicher stattfinden soll.
+Eine Kombination von Steganographie und Kryptographie ist also sinnvoll, wenn Kommunikation versteckt und sicher stattfinden soll.
 Weiter Use-Cases für Steganographie sind das Watermarking und Fingerprinting, um Daten Identifizierbar zu machen. So kann beispielsweise intellektuelles Eigentum geschützt werden.
 
 
@@ -235,7 +235,7 @@ Weiter Use-Cases für Steganographie sind das Watermarking und Fingerprinting, u
 Um anschließend dennoch die eigentliche Aufgabenstellung der Steganographie umzusetzen, wurde sich auf eine sehr einfache Form beschränkt.
 #### Einschub Least Significant Bit Steganographie
 Das letzte Bit eines Pixel bzw eines Pixelwerts bei mehrkanaligen Bildern wir verwendet um die Nachricht zu Speichern. So können in einem Grauwertbild welches 8 Bit nutzt $`Laenge*Breite`$
-An Bits gespeichert werden. Bei einer 3-Kanaligen RGB Bild können $`Länge*Breite*3\;Bits`$ gespeichert werden. Ein 400x400 Pixel Bild kann somit $`400*400*3=480000`$ Bits speichern. Geht man hierbei davon aus das ASCII Zeichen kodiert werden sollen kann eine Nachricht mit  $`\frac{480000}{8}=60000`$ Zeichen gespeichert werden. Dies geht davon aus das ein ASCII Zeichen 8 Bits benötigt. Wenn der Zeichensatz reduziert wird kann damit auch die Nachrichtenlänge erhöht werden.
+an Bits gespeichert werden. Bei einer 3-Kanaligen RGB Bild können $`Länge*Breite*3\;Bits`$ gespeichert werden. Ein 400x400 Pixel Bild kann somit $`400*400*3=480000`$ Bits speichern. Geht man hierbei davon aus das ASCII-Zeichen kodiert werden sollen, kann eine Nachricht mit $`\frac{480000}{8}=60000`$ Zeichen gespeichert werden. Dies geht davon aus das ein ASCII-Zeichen 8 Bits benötigt. Wenn der Zeichensatz reduziert wird kann damit auch die Nachrichtenlänge erhöht werden.
 Dieser Ansatz ist aufgrund seiner simplen Art auch entsprechend einfach zu identifizieren.
 
 #### Umsetzung
@@ -253,12 +253,12 @@ graph TB
 		+ checkSizes(~Pixel~ & image, string & message): bool
 	}
 ```
-Um die Nachricht im letzten Bit der Farbwerte zu verstecken wird jeder Pixel durchgegangen und der jeweilige Farbwert im letzten Bit zum aktuellen Bit der Nachricht geändert. Das ende er Nachricht wird im Bild durch einen *End-of-file* Ascii Wert (`eof`=`\26`) vermerkt. Um die Nachricht zu dekodieren werden die Bilddaten bis zu diesem Zeichen durchlaufen und die Letzten Bits jeweils extrahiert, um so die Nachricht zu erhalten.
+Um die Nachricht im letzten Bit der Farbwerte zu verstecken wird jeder Pixel durchgegangen und der jeweilige Farbwert im letzten Bit zum aktuellen Bit der Nachricht geändert. Das Ende der Nachricht wird im Bild durch einen *End-of-file* Ascii Wert (`eof`=`\26`) vermerkt. Um die Nachricht zu dekodieren werden die Bilddaten bis zu diesem Zeichen durchlaufen und die Letzten Bits jeweils extrahiert, um so die Nachricht zu erhalten.
 
 # Probleme
 ## Erster encoding Versuch
 **Startbild:**
-Codiert werden sollte ein Dummy Text der mit Hilfe von [Lorem Ipsum](https://www.loremipsum.de/) generiert wurde.
+Codiert werden sollte ein Dummy Text der mithilfe von [Lorem Ipsum](https://www.loremipsum.de/) generiert wurde.
 ![demo.png](DocumentationRes/demo.png)
 **Ergebnis**
 ![image3_encoded.png](DocumentationRes/image3_encoded.png)
