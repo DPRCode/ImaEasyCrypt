@@ -82,7 +82,7 @@ Aufbau einer 3x3 PNGs:
 ![DocumentationRes/PNG Aufbau-Seite-1.svg](DocumentationRes/PNG Aufbau-Seite-1.svg)
 
 Beispiel für dekomprimierte Pixel Daten aus einem `IDAT` Chunk:
-![DocumentationRes/IDATdaten-Seite-1.svg](DocumentationRes/IDATdaten-Seite-1.svg)
+![IDATdaten-Seite-1.svg](DocumentationRes/IDATdaten-Seite-1.svg)
 ### Auslesen der einzelnen Chunks
 Um PNG Bilder korrekt einzulesen wurde sich an der Struktur dieser orientiert:
 ```mermaid
@@ -193,11 +193,11 @@ Weiter Use-Cases für Steganographie sind das Watermarking und Fingerprinting, u
 Um anschließend dennoch die eigentliche Aufgabenstellung der Steganographie umzusetzen, wurde sich auf eine sehr einfache Form beschränkt.
 #### Einschub Least Significant Bit Steganographie
 Das letzte Bit eines Pixel bzw eines Pixelwerts bei mehrkanaligen Bildern wir verwendet um die Nachricht zu Speichern. So können in einem Grauwertbild welches 8 Bit nutzt $Laenge*Breite$
-An Bits gespeichert werden. Bei einer 3-Kanaligen RGB Bild können $Länge*Breite*3$ Bits gespeichert werden. Ein 400x400 Pixel Bild kann somit $400*400*3=480000\; Bits$ speichern. Geht man hierbei davon aus das ASCII Zeichen kodiert werden sollen kann eine Nachricht mit  $\frac{480000}{8}=60000$ Zeichen gespeichert werden. Dies geht davon aus das ein ASCII Zeichen 8 Bits benötigt. Wenn der Zeichensatz reduziert wird kann damit auch die Nachrichtenlänge erhöht werden.
+An Bits gespeichert werden. Bei einer 3-Kanaligen RGB Bild können $Länge*Breite*3$ Bits gespeichert werden. Ein 400x400 Pixel Bild kann somit $400*400*3=480000\text{Bits}$ speichern. Geht man hierbei davon aus das ASCII Zeichen kodiert werden sollen kann eine Nachricht mit  $\frac{480000}{8}=60000$ Zeichen gespeichert werden. Dies geht davon aus das ein ASCII Zeichen 8 Bits benötigt. Wenn der Zeichensatz reduziert wird kann damit auch die Nachrichtenlänge erhöht werden.
 Dieser Ansatz ist aufgrund seiner simplen Art auch entsprechend einfach zu identifizieren.
 
 #### Umsetzung
-Um die Least Significant Bit Steganographie umzusetzen wurde eine weitere Klasse implementiert die die nötigen Methoden bereitstellt.
+Um die Least Significant Bit Steganographie umzusetzen wurde eine weitere Klasse implementiert die nötigen Methoden bereitstellt.
 ```mermaid
 classDiagram
 graph TB
