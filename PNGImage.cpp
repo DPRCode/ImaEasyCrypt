@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <zlib.h>
+#include <cmath>
 #include "PNGImage.h"
 
 std::vector<Chunk> PNGImage::extractChunks(const unsigned char* dataArray, long long fileSize) {
@@ -440,12 +441,38 @@ void PNGImage::setPixelData(std::vector<std::vector<Pixel>> pixelData) {
     } else {
         std::vector<unsigned char> inflatedPixelData = insertPixelData(pixelData);
         std::vector<unsigned char> compressedPixelData = deflatePixelData(inflatedPixelData);
+        std::vector<std::vector<unsigned char>> pixelDataChunks;
+        double maxChunkSize= pow(2,31);
+        if (compressedPixelData.size()>=maxChunkSize){
+            int chunkCount = ceil(compressedPixelData.size()/maxChunkSize);
+            for (int i = 0; i < chunkCount; ++i) {
+                std::vector<unsigned char> chunk;
+                for (int j = 0; j < maxChunkSize; ++j) {
+                    if (i*maxChunkSize+j<compressedPixelData.size()){
+                        chunk.push_back(compressedPixelData[i*maxChunkSize+j]);
+                    }
+                }
+                pixelDataChunks.push_back(chunk);
+            }
+        } else {
+            pixelDataChunks.push_back(compressedPixelData);
+        }
         std::vector<Chunk> newChunks;
         for (Chunk chunk:chunks){
             if (chunk.type=="IDAT"){
-                chunk.data = compressedPixelData;
-                chunk.length = compressedPixelData.size();
+                chunk.data = pixelDataChunks[0];
+                chunk.length = pixelDataChunks[0].size();
                 chunk.calculateCRC();
+                if (pixelDataChunks.size()!=1){
+                    for (int i = 1; i < pixelDataChunks.size(); ++i) {
+                        Chunk newChunk;
+                        newChunk.type = "IDAT";
+                        newChunk.data = pixelDataChunks[i];
+                        newChunk.length = pixelDataChunks[i].size();
+                        newChunk.calculateCRC();
+                        newChunks.push_back(newChunk);
+                    }
+                }
             }
             if (chunk.type=="IHDR"){
                 chunk=(createIHDRChunk(pixelData.size(),pixelData[0].size(),8,2,0,0,0));
