@@ -192,8 +192,8 @@ Weiter Use-Cases für Steganographie sind das Watermarking und Fingerprinting, u
 ### Least Significant Bit Steganographie
 Um anschließend dennoch die eigentliche Aufgabenstellung der Steganographie umzusetzen, wurde sich auf eine sehr einfache Form beschränkt.
 #### Einschub Least Significant Bit Steganographie
-Das letzte Bit eines Pixel bzw eines Pixelwerts bei mehrkanaligen Bildern wir verwendet um die Nachricht zu Speichern. So können in einem Grauwertbild welches 8 Bit nutzt $Laenge*Breite$
-An Bits gespeichert werden. Bei einer 3-Kanaligen RGB Bild können $Länge*Breite*3$ Bits gespeichert werden. Ein 400x400 Pixel Bild kann somit $400*400*3=480000$ Bits speichern. Geht man hierbei davon aus das ASCII Zeichen kodiert werden sollen kann eine Nachricht mit  $\frac{480000}{8}=60000$ Zeichen gespeichert werden. Dies geht davon aus das ein ASCII Zeichen 8 Bits benötigt. Wenn der Zeichensatz reduziert wird kann damit auch die Nachrichtenlänge erhöht werden.
+Das letzte Bit eines Pixel bzw eines Pixelwerts bei mehrkanaligen Bildern wir verwendet um die Nachricht zu Speichern. So können in einem Grauwertbild welches 8 Bit nutzt $$Laenge*Breite$$
+An Bits gespeichert werden. Bei einer 3-Kanaligen RGB Bild können $$Länge*Breite*3$$ Bits gespeichert werden. Ein 400x400 Pixel Bild kann somit $400*400*3=480000$ Bits speichern. Geht man hierbei davon aus das ASCII Zeichen kodiert werden sollen kann eine Nachricht mit  $\frac{480000}{8}=60000$ Zeichen gespeichert werden. Dies geht davon aus das ein ASCII Zeichen 8 Bits benötigt. Wenn der Zeichensatz reduziert wird kann damit auch die Nachrichtenlänge erhöht werden.
 Dieser Ansatz ist aufgrund seiner simplen Art auch entsprechend einfach zu identifizieren.
 
 #### Umsetzung
